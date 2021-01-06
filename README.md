@@ -6,7 +6,7 @@ This is a console game that these people made in programming class:
 * Sofi
 * ValentinaIvanova
 * [Me](https://github.com/GiggioG)
-<sub>I don't know their githubs yet, so no link.</sub>
+<br><sub>I don't know their githubs yet, so no link.</sub>
 
 ### TO-DO
 - [ ] remove dumb joke comments
