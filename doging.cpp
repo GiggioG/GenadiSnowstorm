@@ -17,6 +17,7 @@ const char LIFE_CH = '@';
 const COLORS LIFE_COL = RED;
 const int GENADI_MAX_HEALTH = 3;
 const COLORS DEDMSG_COL = BLACK;
+const int JUMP_HEIGHT = 5;
 //} config const͡s
 const int GRND_LVL = (MAP_ROWS * (100-GRND_LVL_PRCNT))/100;
 struct Snowball {
@@ -115,6 +116,9 @@ struct Genadi{
     Controls cont;
     Kashtura k;
     int ks;
+    bool jumpState;
+    int dir;
+    int jumpStep;
     Genadi(){score=0;}
     void getState(){
         cont.getState();
@@ -123,20 +127,37 @@ struct Genadi{
         for(int s = 0; s < sballs.size(); s++){
             if(sballs[s].r == r && sballs[s].c == c){
                 health--;
-                draw_char(' ',sballs[s].r,sballs[s].c,BKG_COL,BKG_COL);//TOVA CHE SI MURTAV NE OZNACHAVA CHE NE SI JIV... AZ NE BQGAM AZ PROSTO TICHAM
+                draw_char(' ',sballs[s].r,sballs[s].c,BKG_COL,BKG_COL); //TOVA CHE SI MURTAV NE OZNACHAVA CHE NE SI JIV... AZ NE BQGAM AZ PROSTO TICHAM
                 sballs.erase(sballs.begin()+s);
                 s--;
             }
         }
     }
+    void gravity(){
+        if(!jumpState){return;}
+        if(jumpStep < JUMP_HEIGHT){
+            r--;
+        }else{
+            r++;
+        }
+        c+=dir;
+        jumpStep++;
+        if(jumpStep == (JUMP_HEIGHT*2)){
+            jumpStep = 0;
+            jumpState = false;
+        }
+    }
     void control(){
         oldC = c;
         oldR = r;
+        dir = 0;
         if(cont.state.left){
             c--;
+            dir = -1;
         }
         if(cont.state.right){
             c++;
+            dir = 1;
         }
         if(cont.state.place){
             if((k.health <= 0) && (ks > 0)){
@@ -145,6 +166,13 @@ struct Genadi{
                 k.health = KASHTURA_MAX_HEALTH;
                 ks--;
             }
+        }
+        if(cont.state.jump && !jumpState){
+            jumpState = true;
+            jumpStep = 0;
+        }
+        if(jumpState){
+            gravity();
         }
     }
     void show(){
@@ -217,6 +245,9 @@ int main() {
     g.k.ch = KASHTURA_CH;
     g.k.col = KASHTURA_COL;
     g.ks = 10;
+    g.jumpState = false;
+    g.dir = 0;
+    g.jumpStep = 0;
     int br=0;
     while(g.health > 0){
         if(br % 5 == 0){
